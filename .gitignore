@@ -6,6 +6,8 @@
 *.lo
 *.o
 *.obj
+*.al
+*.libs
 
 # Precompiled Headers
 *.gch
@@ -39,3 +41,19 @@
 
 # debug information files
 *.dwo
+
+# Build directories
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Other temp files
+.DS_Store
