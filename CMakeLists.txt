@@ -26,7 +26,7 @@ FetchContent_MakeAvailable(catch2)
 
 # Tests
 add_executable(tests
-    tests/test_example.cpp
+    tests/example.test.cpp
 )
 
 target_link_libraries(tests
