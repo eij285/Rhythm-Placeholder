@@ -19,4 +19,4 @@ namespace notation {
      private:
         auto abs_semitone() const -> int;
     };
-}
+} // namespace notation
