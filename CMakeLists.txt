@@ -24,20 +24,31 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(catch2)
 
 
+# Library
+add_library(notation
+    src/notation/musical_element.cpp
+    src/notation/pitch.cpp
+    src/notation/note.cpp
+)
+
+target_include_directories(notation
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}/include
+)
+
+
 # Tests
 add_executable(tests
-    tests/example.test.cpp
+    tests/note.test.cpp
 )
 
 target_link_libraries(tests
     PRIVATE
+        notation
         Catch2::Catch2WithMain
 )
 
-# Mark Catch2 headers as SYSTEM to suppress warnings from external code
-target_include_directories(tests SYSTEM PRIVATE
-    ${catch2_SOURCE_DIR}/src
-)
+target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 # Enable Catch2's test discovery
 include(CTest)
