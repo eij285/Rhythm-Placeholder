@@ -9,7 +9,7 @@ namespace notation {
     : MusicalElement(duration, voice)
     , pitch_{name, octave} {};
 
-    auto Note::get_pitch() const -> Pitch {
+    auto Note::get_pitch() const -> Pitch const& {
         return pitch_;
     }
 

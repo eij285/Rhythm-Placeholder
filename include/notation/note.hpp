@@ -11,7 +11,7 @@ namespace notation {
         Note(Pitch const& pitch, double duration, int voice = 0);
         Note(PitchName const& pitch_name, int octave, double duration, int voice = 0);
 
-        [[nodiscard]] auto get_pitch() const -> Pitch;
+        [[nodiscard]] auto get_pitch() const -> Pitch const&;
         auto print() const -> std::string override;
 
      private:
