@@ -13,14 +13,19 @@ TEST_CASE("Test for spaceship operator <=> and ==") {
         auto const Ds6_v1 = notation::Pitch(notation::PitchName::Ds, 6);
         auto const Ds6_v2 = notation::Pitch(notation::PitchName::Ds, 6);
 
-        CHECK(Ds6_v1 == Ds6_v2);        
+        REQUIRE((Ds6_v1 <=> Ds6_v2) == std::strong_ordering::equal);
+
+        CHECK(Ds6_v1 == Ds6_v2);
+        CHECK(Ds6_v1 <= Ds6_v2);
+        CHECK(Ds6_v1 >= Ds6_v2);     
     }
 
-    SECTION("Octave order produces correct ordering") {
+    SECTION("Octave number produces correct ordering") {
         auto const Bb2 = notation::Pitch(notation::PitchName::Bb, 2);
         auto const Bb3 = notation::Pitch(notation::PitchName::Bb, 3);
 
-        CHECK((Bb2 <=> Bb3) == std::strong_ordering::less);
+        REQUIRE((Bb2 <=> Bb3) == std::strong_ordering::less);
+        REQUIRE((Bb3 <=> Bb2) == std::strong_ordering::greater);
 
         CHECK(Bb2 < Bb3);
         CHECK(Bb2 <= Bb3);
@@ -28,7 +33,37 @@ TEST_CASE("Test for spaceship operator <=> and ==") {
         CHECK(Bb3 >= Bb2);
     }
 
+    SECTION("Pitchname produces correct ordering within same octave") {
+        auto const A0 = notation::Pitch(notation::PitchName::A, 0);
+        auto const B0 = notation::Pitch(notation::PitchName::B, 0);
 
+        REQUIRE((A0 <=> B0) == std::strong_ordering::less);
+        REQUIRE((B0 <=> A0) == std::strong_ordering::greater);
+
+        CHECK(A0 < B0);
+        CHECK(A0 <= B0);
+        CHECK(B0 > A0);
+        CHECK(B0 >= A0);
+    }
+
+    SECTION("Operator <=> does not follow enharmonic ordering") {
+        auto const E5 = notation::Pitch(notation::PitchName::E, 5);
+        auto const Es5 = notation::Pitch(notation::PitchName::Es, 5);
+        auto const Fb5 = notation::Pitch(notation::PitchName::Fb, 5);
+        auto const F5 = notation::Pitch(notation::PitchName::F, 5);
+
+        REQUIRE((E5 <=> Fb5) == std::strong_ordering::less);
+        CHECK(E5 < Fb5);
+        CHECK_FALSE(E5 == Fb5);
+
+        REQUIRE((Es5 <=> F5) == std::strong_ordering::less);
+        CHECK(Es5 < F5);
+        CHECK_FALSE(Es5 == F5);
+
+        REQUIRE((Es5 <=> Fb5) == std::strong_ordering::less);
+        CHECK(Es5 < Fb5);
+        CHECK_FALSE(Fb5 < Es5);
+    }
 }
 
 TEST_CASE("Test for is_enharmonic() member function") {
