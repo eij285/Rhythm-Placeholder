@@ -29,6 +29,8 @@ add_library(notation
     src/notation/musical_element.cpp
     src/notation/pitch.cpp
     src/notation/note.cpp
+    src/notation/chord.cpp
+    src/notation/rest.cpp
 )
 
 target_include_directories(notation

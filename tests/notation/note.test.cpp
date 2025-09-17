@@ -36,7 +36,6 @@ TEST_CASE("Constructors set correct private field members") {
 	}
 }
 
-TEST_CASE("TODO: Print() prints correct thing") {
+TEST_CASE("TODO: Note's print() prints correct thing") {
 	REQUIRE(true);
 }
-

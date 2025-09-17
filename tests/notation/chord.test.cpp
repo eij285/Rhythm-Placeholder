@@ -23,7 +23,7 @@ TEST_CASE("Constructor sets correct private field members") {
     CHECK(CMaj_semiq.get_voice() == 1);
 }
 
-TEST_CASE("Non-member function make_chord() constructs chord given valid notes") {
+TEST_CASE("Non-member function make_chord() constructs sorted chord given valid notes") {
     auto D3 = notation::Pitch{notation::PitchName::D, 3};
     auto F3 = notation::Pitch{notation::PitchName::F, 3};
     auto Ab3 = notation::Pitch{notation::PitchName::Ab, 3};
@@ -63,4 +63,30 @@ TEST_CASE("Non-member function make_chord() constructs chord given valid notes")
         CHECK(Ddim.get_duration() == 2.0);
         CHECK(Ddim.get_voice() == 0);
     }
+
+    SECTION("Successfully constructs the D diminished chord even if unsorted") {
+        auto expected_pitches = std::vector<notation::Pitch>{D3, F3, Ab3, Cb4, D4};
+
+        auto Ddim_notes_unsorted = std::initializer_list<notation::Note>{
+            notation::Note{D4, 2.0},
+            notation::Note{Cb4, 2.0},
+            notation::Note{F3, 2.0},
+            notation::Note{D3, 2.0},
+            notation::Note{Ab3, 2.0}
+        };
+
+        auto Ddim = notation::make_chord(Ddim_notes_unsorted);
+
+        CHECK(Ddim.get_pitches() == expected_pitches);
+        CHECK(Ddim.get_duration() == 2.0);
+        CHECK(Ddim.get_voice() == 0);
+    }
+}
+
+TEST_CASE("TODO: Chord's print() prints correct thing") {
+    REQUIRE(true);
+}
+
+TEST_CASE("Chord's add_pitch() successfully is able to add pitches in a sorted manner") {
+
 }

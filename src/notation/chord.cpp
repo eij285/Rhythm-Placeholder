@@ -63,6 +63,7 @@ namespace notation {
             pitches.push_back(note.get_pitch());
         }
 
+        std::sort(pitches.begin(), pitches.end());
         return Chord(pitches, dur, voice);
     }
 
