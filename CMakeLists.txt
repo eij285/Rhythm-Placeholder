@@ -39,7 +39,7 @@ target_include_directories(notation
 
 # Tests
 add_executable(tests
-    tests/note.test.cpp
+    tests/notation/pitch.test.cpp
 )
 
 target_link_libraries(tests
