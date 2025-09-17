@@ -7,12 +7,24 @@ namespace notation {
     : name_{name}
     , octave_{octave} {};
 
+    auto Pitch::get_name() const -> PitchName {
+        return name_;
+    }
+
+    auto Pitch::get_octave() const -> int {
+        return octave_;
+    }
+
     auto Pitch::operator<=>(Pitch const& other) const -> std::strong_ordering {
         if (octave_ != other.octave_) {
             return octave_ <=> other.octave_;
         }
 
         return name_ <=> other.name_;
+    }
+
+    auto Pitch::operator==(Pitch const& other) const -> bool {
+        return (octave_ == other.octave_) && (name_ == other.name_);
     }
 
     auto Pitch::is_enharmonic(Pitch const& other) const -> bool {

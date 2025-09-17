@@ -9,14 +9,20 @@ namespace notation {
 
     class Pitch {
      public:
-        PitchName name_;
-        int octave_;
-
         Pitch(PitchName name, int octave);
+
+        [[nodiscard]] auto get_name() const -> PitchName;
+        [[nodiscard]] auto get_octave() const -> int;
+
         [[nodiscard]] auto operator<=>(Pitch const& other) const -> std::strong_ordering;
+        [[nodiscard]] auto operator==(Pitch const& other) const -> bool;
+
         [[nodiscard]] auto is_enharmonic(Pitch const& other) const -> bool;
 
      private:
-        auto abs_semitone() const -> int;
+        PitchName name_;
+        int octave_;
+
+        [[nodiscard]] auto abs_semitone() const -> int;
     };
 } // namespace notation
