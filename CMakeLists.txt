@@ -40,6 +40,8 @@ target_include_directories(notation
 # Tests
 add_executable(tests
     tests/notation/pitch.test.cpp
+    tests/notation/note.test.cpp
+    tests/notation/chord.test.cpp
 )
 
 target_link_libraries(tests
