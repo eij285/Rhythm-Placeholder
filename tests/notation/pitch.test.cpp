@@ -4,8 +4,8 @@
 TEST_CASE("Test for constructor with two arguments") {
     auto const C4 = notation::Pitch(notation::PitchName::C, 4);
 
-    CHECK(C4.name_ == notation::PitchName::C);
-    CHECK(C4.octave_ == 4);
+    CHECK(C4.get_name() == notation::PitchName::C);
+    CHECK(C4.get_octave() == 4);
 }
 
 TEST_CASE("Test for spaceship operator <=> and ==") {
@@ -120,7 +120,7 @@ TEST_CASE("Test for is_enharmonic() across an entire octave C to C") {
     CHECK(B3.is_enharmonic(Cb4));
 
     auto const Bs3 = notation::Pitch(notation::PitchName::Bs, 3);
-    auto const C4 = notation::Pitch(notation::PitchName::Ab, 4);
+    auto const C4 = notation::Pitch(notation::PitchName::C, 4);
 
     CHECK(Bs3.is_enharmonic(C4));
 

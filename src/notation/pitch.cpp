@@ -67,8 +67,9 @@ namespace notation {
             case PitchName::Bb:
                 return octave_base + 10;
             case PitchName::B:
-            case PitchName::Bs:
                 return octave_base + 11;
+            case PitchName::Bs:
+                return octave_base + 12;
         }
 
         assert(false && "Invalid PitchName in semitone_val");
