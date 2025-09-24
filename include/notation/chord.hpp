@@ -11,11 +11,14 @@ namespace notation {
         Chord(std::vector<Pitch> pitches, double duration, int voice = 0);
 
         [[nodiscard]] auto get_pitches() const -> std::vector<Pitch> const&;
-        auto print() const -> std::string override;
 
-        auto add_pitch(Pitch const& pitch) -> Chord&;
-        auto add_note(Note const& note) -> Chord&;
-        auto add_notes(std::initializer_list<Note> const& notes) -> Chord&;
+        [[nodiscard]] auto with_pitch(Pitch const& pitch) const -> std::unique_ptr<MusicalElement> override;
+        [[nodiscard]] auto with_pitches(std::initializer_list<Pitch> const& pitches) const
+            -> std::unique_ptr<MusicalElement> override;
+
+        [[nodiscard]] auto without_pitch(Pitch const& pitch) const -> std::unique_ptr<MusicalElement> override;
+        [[nodiscard]] auto without_pitches(std::initializer_list<Pitch> const& pitches) const
+            -> std::unique_ptr<MusicalElement> override;
 
      private:
         std::vector<Pitch> pitches_;
