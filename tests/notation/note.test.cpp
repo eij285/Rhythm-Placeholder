@@ -1,8 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include "notation/note.hpp"
 #include "notation/pitch.hpp"
+#include "notation/chord.hpp"
+#include "notation/rest.hpp"
 
-TEST_CASE("Constructors set correct private field members") {
+TEST_CASE("NOTE: Constructors set correct private field members") {
 	SECTION("Constructor takes in a Pitch object, duration and an optional voice") {
 		auto C4 = notation::Pitch{notation::PitchName::C, 4};
 		auto C4_crotchet = notation::Note{C4, 1.0};
@@ -36,6 +38,71 @@ TEST_CASE("Constructors set correct private field members") {
 	}
 }
 
-TEST_CASE("TODO: Note's print() prints correct thing") {
-	REQUIRE(true);
+TEST_CASE("NOTE: Modifiers with_pitch and with_pitches return a Chord with the correct pitches") {
+	auto D5 = notation::Pitch{notation::PitchName::D, 5};
+	auto D5_crotchet = notation::Note{D5, 1.0};
+
+	SECTION("with_pitch returns a Chord with the original pitch and the new pitch") {
+		auto Fs5 = notation::Pitch{notation::PitchName::Fs, 5};
+		auto maj_3rd = D5_crotchet.with_pitch(Fs5);
+
+		CHECK(maj_3rd->get_duration() == D5_crotchet.get_duration());
+		CHECK(maj_3rd->get_voice() == D5_crotchet.get_voice());
+
+		auto* chord = dynamic_cast<notation::Chord*>(maj_3rd.get());
+		REQUIRE(chord != nullptr);
+
+		auto expected = std::vector<notation::Pitch>{D5, Fs5};
+
+		CHECK(chord->get_pitches() == expected);
+	}
+
+	SECTION("with_pitches returns a Chord with the original pitch and the new pitches") {
+		auto F5 = notation::Pitch{notation::PitchName::F, 5};
+		auto A5 = notation::Pitch{notation::PitchName::A, 5};
+		auto Dm = D5_crotchet.with_pitches({F5, A5});
+
+		CHECK(Dm->get_duration() == D5_crotchet.get_duration());
+		CHECK(Dm->get_voice() == D5_crotchet.get_voice());
+
+		auto* chord = dynamic_cast<notation::Chord*>(Dm.get());
+		REQUIRE(chord != nullptr);
+
+		auto expected = std::vector<notation::Pitch>{D5, F5, A5};
+
+		CHECK(chord->get_pitches() == expected);
+	}
+}
+
+TEST_CASE("NOTE: Modifiers without_pitch and without_pitches behave as expected") {
+	auto D5 = notation::Pitch{notation::PitchName::D, 5};
+	auto D5_crotchet = notation::Note{D5, 1.0};
+
+	SECTION("without_pitch returns a Rest") {
+		auto Fs5 = notation::Pitch{notation::PitchName::Fs, 5};
+
+		CHECK_THROWS_AS(D5_crotchet.without_pitch(Fs5), std::invalid_argument);
+
+		auto cr_rest = D5_crotchet.without_pitch(D5);
+
+		CHECK(cr_rest->get_duration() == D5_crotchet.get_duration());
+		CHECK(cr_rest->get_voice() == D5_crotchet.get_voice());
+
+		auto* rest = dynamic_cast<notation::Rest*>(cr_rest.get());
+		REQUIRE(rest != nullptr);
+	}
+
+	SECTION("without_pitches returns a Chord with the original pitch and the new pitches") {
+		auto F5 = notation::Pitch{notation::PitchName::F, 5};
+
+		CHECK_THROWS_AS(D5_crotchet.without_pitches({D5, F5}), std::invalid_argument);
+
+		auto cr_rest = D5_crotchet.without_pitches({D5});
+
+		CHECK(cr_rest->get_duration() == D5_crotchet.get_duration());
+		CHECK(cr_rest->get_voice() == D5_crotchet.get_voice());
+
+		auto* rest = dynamic_cast<notation::Rest*>(cr_rest.get());
+		REQUIRE(rest != nullptr);
+	}
 }

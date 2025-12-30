@@ -1,14 +1,14 @@
 #include <catch2/catch_test_macros.hpp>
 #include "notation/pitch.hpp"
 
-TEST_CASE("Test for constructor with two arguments") {
+TEST_CASE("PITCH: Test for constructor with two arguments") {
     auto const C4 = notation::Pitch(notation::PitchName::C, 4);
 
     CHECK(C4.get_name() == notation::PitchName::C);
     CHECK(C4.get_octave() == 4);
 }
 
-TEST_CASE("Test for spaceship operator <=> and ==") {
+TEST_CASE("PITCH: Test for spaceship operator <=> and ==") {
     SECTION("Equality == works for two pitches with same octave and PitchName") {
         auto const Ds6_v1 = notation::Pitch(notation::PitchName::Ds, 6);
         auto const Ds6_v2 = notation::Pitch(notation::PitchName::Ds, 6);
@@ -66,7 +66,7 @@ TEST_CASE("Test for spaceship operator <=> and ==") {
     }
 }
 
-TEST_CASE("Test for is_enharmonic() member function") {
+TEST_CASE("PITCH: Test for is_enharmonic() member function") {
     SECTION("Pitches separated by an octave are not enharmonic") {
         auto const G2 = notation::Pitch(notation::PitchName::G, 2);
         auto const G3 = notation::Pitch(notation::PitchName::G, 3);
@@ -113,7 +113,7 @@ TEST_CASE("Test for is_enharmonic() member function") {
     }
 }
 
-TEST_CASE("Test for is_enharmonic() across an entire octave C to C") {
+TEST_CASE("PITCH: Test for is_enharmonic() across an entire octave C to C") {
     auto const B3 = notation::Pitch(notation::PitchName::B, 3);
     auto const Cb4 = notation::Pitch(notation::PitchName::Cb, 4);
 
