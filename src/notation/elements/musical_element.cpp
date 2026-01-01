@@ -1,4 +1,4 @@
-#include "notation/musical_element.hpp"
+#include "notation/elements/musical_element.hpp"
 
 namespace notation {
     MusicalElement::MusicalElement(double duration, int voice)

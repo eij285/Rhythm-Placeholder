@@ -1,8 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
-#include "notation/chord.hpp"
-#include "notation/pitch.hpp"
-#include "notation/note.hpp"
-#include "notation/rest.hpp"
+#include "notation/elements/chord.hpp"
+#include "notation/elements/pitch.hpp"
+#include "notation/elements/note.hpp"
+#include "notation/elements/rest.hpp"
 
 TEST_CASE("CHORD: Constructor sets correct private field members") {
     auto pitches = std::vector<notation::Pitch>{
@@ -119,6 +119,74 @@ TEST_CASE("CHORD: Modifiers with_pitch and with_pitches return a new Chord with 
         auto expected = std::vector<notation::Pitch>{D5, F5, A5, C6};
 
         CHECK(chord->get_pitches() == expected);
+    }
+}
+
+TEST_CASE("CHORD: without_pitch and without_pitches return correct elements") {
+    auto Eb2 = notation::Pitch{notation::PitchName::Eb, 2};
+    auto G2 = notation::Pitch{notation::PitchName::G, 2};
+    auto Bb2 = notation::Pitch{notation::PitchName::Bb, 2};
+
+    SECTION("without_pitch returns a Chord with the specified pitch removed") {
+        auto EbM = notation::Chord{{Eb2, G2, Bb2}, 1.0};
+        auto perf_5th = EbM.without_pitch(G2);
+
+        CHECK(perf_5th->get_duration() == EbM.get_duration());
+        CHECK(perf_5th->get_voice() == EbM.get_voice());
+
+        auto* chord = dynamic_cast<notation::Chord*>(perf_5th.get());
+        REQUIRE(chord != nullptr);
+
+        auto expected = std::vector<notation::Pitch>{Eb2, Bb2};
+
+        CHECK(chord->get_pitches() == expected);
+    }
+
+    SECTION("without_pitch returns a Note with the specified pitch removed") {
+        auto Eb_5th = notation::Chord{{Eb2, Bb2}, 2.0};
+        auto Eb_minim = Eb_5th.without_pitch(Bb2);
+
+        CHECK(Eb_minim->get_duration() == Eb_5th.get_duration());
+        CHECK(Eb_minim->get_voice() == Eb_5th.get_voice());
+
+        auto* note = dynamic_cast<notation::Note*>(Eb_minim.get());
+        REQUIRE(note != nullptr);
+
+        CHECK(note->get_pitch() == Eb2);
+    }
+
+    SECTION("without_pitch throws an error if specified pitch does not exist") {
+        auto EbM = notation::Chord{{Eb2, G2, Bb2}, 0.5};
+        auto Eb3 = notation::Pitch{notation::PitchName::Eb, 3};
+
+        CHECK_THROWS_AS(EbM.without_pitch(Eb3), std::invalid_argument);
+    }
+
+    SECTION("without_pitches returns a Chord with the specified pitches removed") {
+        auto Eb3 = notation::Pitch{notation::PitchName::Eb, 3};
+        auto EbM = notation::Chord{{Eb2, G2, Bb2, Eb3}, 4.0};
+
+        auto maj_3rd = EbM.without_pitches({Bb2, Eb3});
+
+        CHECK(maj_3rd->get_duration() == EbM.get_duration());
+        CHECK(maj_3rd->get_voice() == EbM.get_voice());
+
+        auto* chord = dynamic_cast<notation::Chord*>(maj_3rd.get());
+        REQUIRE(chord != nullptr);
+
+        auto expected = std::vector<notation::Pitch>{Eb2, G2};
+
+        CHECK(chord->get_pitches() == expected);
+    }
+
+    SECTION("without_pitches throws an error if specified pitch does not exist") {
+        auto Eb3 = notation::Pitch{notation::PitchName::Eb, 3};
+        auto EbM = notation::Chord{{Eb2, G2, Bb2, Eb3}, 4.0};
+
+        auto D2 = notation::Pitch{notation::PitchName::D, 2};
+
+        CHECK_THROWS_AS(EbM.without_pitches({G2, D2}), std::invalid_argument);
+        CHECK_THROWS_AS(EbM.without_pitches({D2}), std::invalid_argument);
     }
 }
 

@@ -1,4 +1,4 @@
-#include "notation/pitch.hpp"
+#include "notation/elements/pitch.hpp"
 
 #include <cassert>
 

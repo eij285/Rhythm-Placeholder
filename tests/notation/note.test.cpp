@@ -1,8 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
-#include "notation/note.hpp"
-#include "notation/pitch.hpp"
-#include "notation/chord.hpp"
-#include "notation/rest.hpp"
+#include "notation/elements/note.hpp"
+#include "notation/elements/pitch.hpp"
+#include "notation/elements/chord.hpp"
+#include "notation/elements/rest.hpp"
 
 TEST_CASE("NOTE: Constructors set correct private field members") {
 	SECTION("Constructor takes in a Pitch object, duration and an optional voice") {

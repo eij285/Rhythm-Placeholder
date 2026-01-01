@@ -1,17 +1,17 @@
 #pragma once
-#include "notation/musical_element.hpp"
-#include "notation/pitch.hpp"
+#include "notation/elements/musical_element.hpp"
+#include "notation/elements/pitch.hpp"
+#include "notation/elements/note.hpp"
 
-#include <initializer_list>
+#include <vector>
 
 namespace notation {
-    class Note : public MusicalElement {
+    class Chord : public MusicalElement {
      public:
-        Note(Pitch const& pitch, double duration, int voice = 0);
-        Note(PitchName const& pitch_name, int octave, double duration, int voice = 0);
+        Chord(std::vector<Pitch> pitches, double duration, int voice = 0);
 
-        [[nodiscard]] auto get_pitch() const -> Pitch const&;
-        
+        [[nodiscard]] auto get_pitches() const -> std::vector<Pitch> const&;
+
         [[nodiscard]] auto with_pitch(Pitch const& pitch) const -> std::unique_ptr<MusicalElement> override;
         [[nodiscard]] auto with_pitches(std::initializer_list<Pitch> const& pitches) const
             -> std::unique_ptr<MusicalElement> override;
@@ -21,6 +21,10 @@ namespace notation {
             -> std::unique_ptr<MusicalElement> override;
 
      private:
-        Pitch pitch_;
+        std::vector<Pitch> pitches_;
     };
+
+    /* Non-Member Functions*/
+    auto make_chord(std::initializer_list<Note> const& notes) -> Chord;
+
 } // namespace notation

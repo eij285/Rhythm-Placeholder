@@ -26,11 +26,11 @@ FetchContent_MakeAvailable(catch2)
 
 # Library
 add_library(notation
-    src/notation/musical_element.cpp
-    src/notation/pitch.cpp
-    src/notation/note.cpp
-    src/notation/chord.cpp
-    src/notation/rest.cpp
+    src/notation/elements/musical_element.cpp
+    src/notation/elements/pitch.cpp
+    src/notation/elements/note.cpp
+    src/notation/elements/chord.cpp
+    src/notation/elements/rest.cpp
 )
 
 target_include_directories(notation
@@ -44,6 +44,7 @@ add_executable(tests
     tests/notation/pitch.test.cpp
     tests/notation/note.test.cpp
     tests/notation/chord.test.cpp
+    tests/notation/rest.test.cpp
 )
 
 target_link_libraries(tests

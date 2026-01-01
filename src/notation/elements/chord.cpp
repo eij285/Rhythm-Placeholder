@@ -1,6 +1,6 @@
-#include "notation/chord.hpp"
-#include "notation/note.hpp"
-#include "notation/rest.hpp"
+#include "notation/elements/chord.hpp"
+#include "notation/elements/note.hpp"
+#include "notation/elements/rest.hpp"
 #include "notation/notation_globals.hpp"
 
 #include <stdexcept>

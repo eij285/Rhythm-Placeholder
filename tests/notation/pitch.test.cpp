@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "notation/pitch.hpp"
+#include "notation/elements/pitch.hpp"
 
 TEST_CASE("PITCH: Test for constructor with two arguments") {
     auto const C4 = notation::Pitch(notation::PitchName::C, 4);

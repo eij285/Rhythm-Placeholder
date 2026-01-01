@@ -1,6 +1,6 @@
-#include "notation/rest.hpp"
-#include "notation/note.hpp"
-#include "notation/chord.hpp"
+#include "notation/elements/rest.hpp"
+#include "notation/elements/note.hpp"
+#include "notation/elements/chord.hpp"
 
 #include <vector>
 
