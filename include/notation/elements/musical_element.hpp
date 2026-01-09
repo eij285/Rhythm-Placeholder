@@ -3,7 +3,7 @@
 #include <initializer_list>
 
 namespace notation {
-    class Pitch;
+    struct Pitch;
 
     class MusicalElement {
      public:

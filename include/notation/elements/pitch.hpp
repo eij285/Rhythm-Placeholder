@@ -6,7 +6,7 @@ namespace notation {
         Cb, C, Cs, Db, D, Ds, Eb, E, Es, Fb, F, Fs, Gb, G, Gs, Ab, A, As, Bb, B, Bs
     };
 
-    class Pitch {
+    struct Pitch {
      public:
         Pitch(PitchName name, int octave);
 
