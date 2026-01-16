@@ -31,6 +31,9 @@ add_library(notation
     src/notation/elements/note.cpp
     src/notation/elements/chord.cpp
     src/notation/elements/rest.cpp
+
+    src/notation/layout/score.cpp
+    src/notation/layout/bar_content.cpp
 )
 
 target_include_directories(notation
