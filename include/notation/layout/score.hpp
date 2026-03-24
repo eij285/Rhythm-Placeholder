@@ -16,7 +16,7 @@ namespace notation {
         [[nodiscard]] auto get_timeline() const -> std::vector<BarInfo> const&;
 
         auto add_new_bar() -> BarInfo&;
-        auto add_part(Part part) -> Part&;
+        auto add_part(std::string instrument, int no_staves) -> Part&;
 
      private:
         std::string title_;

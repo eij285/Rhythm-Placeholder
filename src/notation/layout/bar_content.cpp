@@ -11,7 +11,7 @@ namespace notation {
         return elements_;
     }
 
-    auto BarContent::remaining_duration() const -> int {
+    auto BarContent::remaining_duration() const -> double {
         return total_duration_ - used_duration_;
     }
 
@@ -35,4 +35,4 @@ namespace notation {
         elements_.clear();
         used_duration_ = 0;
     }
-}
+} // namespace notation

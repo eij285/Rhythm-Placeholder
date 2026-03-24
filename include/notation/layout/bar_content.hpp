@@ -10,7 +10,7 @@ namespace notation {
         BarContent(int total_duration);
 
         [[nodiscard]] auto get_elements() const -> std::vector<std::unique_ptr<MusicalElement>> const&;
-        [[nodiscard]] auto remaining_duration() const -> int;
+        [[nodiscard]] auto remaining_duration() const -> double;
         [[nodiscard]] auto empty() const -> bool;
 
         auto try_add(std::unique_ptr<MusicalElement> element) -> bool;
@@ -18,7 +18,7 @@ namespace notation {
 
      private:
         std::vector<std::unique_ptr<MusicalElement>> elements_;
-        int total_duration_;
-        int used_duration_;
+        double total_duration_;
+        double used_duration_;
     };
 } // namespace notation
