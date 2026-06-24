@@ -7,7 +7,7 @@
 namespace notation {
     class BarContent {
      public:
-        BarContent(int total_duration);
+        BarContent(double total_duration);
 
         [[nodiscard]] auto get_elements() const -> std::vector<std::unique_ptr<MusicalElement>> const&;
         [[nodiscard]] auto remaining_duration() const -> double;

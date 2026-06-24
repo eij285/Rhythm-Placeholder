@@ -11,4 +11,10 @@ namespace notation {
     auto Part::get_staves() const -> std::vector<Stave> const& {
         return staves_;
     }
+
+    auto Part::add_bar_to_staves(double total_duration) -> void {
+        for (auto& stave : staves_) {
+            stave.add_bar(total_duration);
+        }
+    }
 } // namespace notation

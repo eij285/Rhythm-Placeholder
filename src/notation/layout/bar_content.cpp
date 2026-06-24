@@ -4,7 +4,7 @@
 #include <cmath>
 
 namespace notation {
-    BarContent::BarContent(int total_duration)
+    BarContent::BarContent(double total_duration)
     : total_duration_{total_duration}, used_duration_{0} {};
 
     auto BarContent::get_elements() const -> std::vector<std::unique_ptr<MusicalElement>> const& {
@@ -22,7 +22,7 @@ namespace notation {
     auto BarContent::try_add(std::unique_ptr<MusicalElement> element) -> bool {
         auto const elem_duration = element->get_duration();
 
-        if (remaining_duration() + dur_tolerance >= elem_duration) {
+        if (remaining_duration() >= elem_duration + dur_tolerance) {
             used_duration_ += elem_duration;
             elements_.push_back(std::move(element));
             return true;

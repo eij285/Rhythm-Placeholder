@@ -5,6 +5,8 @@
 
 namespace notation {
     class Part {
+        friend class Score;
+
      public:
         Part(std::string instrument = "", int no_staves = 1);
 
@@ -14,5 +16,7 @@ namespace notation {
      private:
         std::string instrument_;
         std::vector<Stave> staves_;
+
+        auto add_bar_to_staves(double total_duration) -> void;
     };
 } // namespace notation

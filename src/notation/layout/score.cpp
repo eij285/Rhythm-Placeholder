@@ -25,22 +25,30 @@ namespace notation {
 
     auto Score::add_new_bar() -> BarInfo& {
         if (timeline_.empty()) {
-            // If there are no bars yet, add a default one
             timeline_.emplace_back();
-
         } else {
-            // Otherwise, copy the last bar's settings
-            auto last_bar = timeline_.back();
-            timeline_.push_back(last_bar);
+            timeline_.push_back(timeline_.back());
+        }
+
+        auto const ts = timeline_.back().get_time_signature();
+        auto const total_duration = ts.get_top() * (4.0 / ts.get_bot());
+
+        for (auto& part : parts_) {
+            part.add_bar_to_staves(total_duration);
         }
 
         return timeline_.back();
     }
 
     auto Score::add_part(std::string instrument, int no_staves) -> Part& {
-        auto part = Part{instrument, no_staves};
+        parts_.emplace_back(instrument, no_staves);
 
-        parts_.push_back(std::move(part));
+        for (auto const& bar_info : timeline_) {
+            auto const ts = bar_info.get_time_signature();
+            auto const total_duration = ts.get_top() * (4.0 / ts.get_bot());
+            parts_.back().add_bar_to_staves(total_duration);
+        }
+
         return parts_.back();
     }
 }

@@ -34,6 +34,9 @@ add_library(notation
 
     src/notation/layout/score.cpp
     src/notation/layout/bar_content.cpp
+    src/notation/layout/part.cpp
+    src/notation/layout/stave.cpp
+    src/notation/layout/bar_info.cpp
 )
 
 target_include_directories(notation
