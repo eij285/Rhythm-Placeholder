@@ -51,6 +51,8 @@ add_executable(tests
     tests/notation/note.test.cpp
     tests/notation/chord.test.cpp
     tests/notation/rest.test.cpp
+    tests/layout/bar_content.test.cpp
+    tests/layout/bar_info.test.cpp
 )
 
 target_link_libraries(tests

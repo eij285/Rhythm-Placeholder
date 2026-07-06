@@ -22,7 +22,7 @@ namespace notation {
     auto BarContent::try_add(std::unique_ptr<MusicalElement> element) -> bool {
         auto const elem_duration = element->get_duration();
 
-        if (remaining_duration() >= elem_duration + dur_tolerance) {
+        if (remaining_duration() + dur_tolerance >= elem_duration) {
             used_duration_ += elem_duration;
             elements_.push_back(std::move(element));
             return true;
