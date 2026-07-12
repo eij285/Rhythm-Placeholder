@@ -17,4 +17,11 @@ namespace notation {
             stave.add_bar();
         }
     }
+
+    auto Part::add_element_to_bar(size_t stave_index, size_t bar_index,
+                                  std::unique_ptr<MusicalElement> element,
+                                  double total_duration) -> bool {
+        return staves_.at(stave_index).bar_contents_.at(bar_index)
+                   .try_add(std::move(element), total_duration);
+    }
 } // namespace notation

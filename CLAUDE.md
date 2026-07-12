@@ -36,6 +36,28 @@ struct StaveSlot {
 
 `Part` changes from `vector<Stave>` to `vector<StaveSlot>`. Range checks go in `Part::add_bar_to_staves`. The range is a `Part`-level scheduling concern; `Stave` stays a pure bar content container with no layout awareness. `Score` gains a new entry point for adding a ranged stave to an existing part.
 
+### Passkey pattern to replace friend chain
+
+`Score`, `Part`, and `Stave` currently use a friend chain for privileged access. As `Score`'s API grows, `Part` risks accumulating boilerplate pass-through methods that only exist to relay `Score`'s calls to `Stave`.
+
+The passkey pattern removes the need for `friend` and the intermediary chain. A private token type is owned by `Score`; methods that only `Score` should call are made public but require a `ScoreKey` argument that only `Score` can construct:
+
+```cpp
+class ScoreKey {
+    ScoreKey() = default;
+    friend class Score;
+};
+
+// In Part and Stave — public, but gated by ScoreKey
+auto add_element_to_bar(size_t stave_index, size_t bar_index,
+                        std::unique_ptr<MusicalElement>, double total_duration,
+                        ScoreKey) -> bool;
+```
+
+`Score` passes `ScoreKey{}` at the call site; no other caller can construct it. This lets `Score` call directly into `Stave` without `Part` acting as an intermediary, and removes all `friend` declarations.
+
+Revisit if `Part` accumulates too many pass-through methods.
+
 ## Current Priority
 
 1. Clean music data model

@@ -1,4 +1,5 @@
 #include "notation/layout/score.hpp"
+#include "notation/elements/musical_element.hpp"
 
 namespace notation {
     Score::Score(std::vector<Part> parts, std::string title, std::string author)
@@ -35,6 +36,13 @@ namespace notation {
         }
 
         return timeline_.back();
+    }
+
+    auto Score::add_element(size_t bar_index, size_t part_index, size_t stave_index,
+                            std::unique_ptr<MusicalElement> element) -> bool {
+        auto const total_dur = timeline_.at(bar_index).get_time_signature().total_duration();
+        return parts_.at(part_index).add_element_to_bar(stave_index, bar_index,
+                                                        std::move(element), total_dur);
     }
 
     auto Score::add_part(std::string instrument, int no_staves) -> Part& {

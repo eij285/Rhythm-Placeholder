@@ -1,7 +1,9 @@
 #pragma once
 #include "notation/layout/bar_info.hpp"
 #include "notation/layout/part.hpp"
+#include "notation/elements/musical_element.hpp"
 
+#include <memory>
 #include <vector>
 
 namespace notation {
@@ -17,11 +19,8 @@ namespace notation {
 
         auto add_new_bar() -> BarInfo&;
         auto add_part(std::string instrument, int no_staves) -> Part&;
-
-        // TODO: add_element(size_t bar_index, size_t part_index, size_t stave_index,
-        //                    std::unique_ptr<MusicalElement>) -> bool
-        // Score looks up total_duration from timeline and delegates to BarContent::try_add,
-        // so clients never need to supply or know the duration themselves.
+        auto add_element(size_t bar_index, size_t part_index, size_t stave_index,
+                         std::unique_ptr<MusicalElement> element) -> bool;
 
      private:
         std::string title_;

@@ -2,6 +2,9 @@
 #include "notation/layout/score.hpp"
 #include "notation/layout/part.hpp"
 #include "notation/layout/bar_info.hpp"
+#include "notation/elements/note.hpp"
+#include "notation/elements/rest.hpp"
+#include "notation/elements/pitch.hpp"
 
 TEST_CASE("SCORE: Constructors work as expected") {
     SECTION("Default constructor") {
@@ -198,4 +201,97 @@ TEST_CASE("SCORE: Every stave has the same number of bar content entries as the 
             CHECK(stave.get_bar_contents().size() == expected);
         }
     }
+}
+
+TEST_CASE("SCORE add_element(): returns false and leaves bar unchanged when element exceeds remaining duration") {
+    auto score = notation::Score{};
+    score.add_part("Violin", 1);
+    score.add_new_bar();
+
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+    auto const& barc = score.get_parts()[0].get_staves()[0].get_bar_content(0);
+    auto const ts = score.get_timeline()[0].get_time_signature();
+
+    CHECK(!score.add_element(0, 0, 0, std::make_unique<notation::Note>(C4, 5.0)));
+    CHECK(barc.empty());
+    CHECK(barc.remaining_duration(ts.total_duration()) == 4.0);
+}
+
+TEST_CASE("SCORE add_element(): returns false when bar is already full") {
+    auto score = notation::Score{};
+    score.add_part("Violin", 1);
+    score.add_new_bar();
+
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+    REQUIRE(score.add_element(0, 0, 0, std::make_unique<notation::Note>(C4, 4.0)));
+    CHECK(!score.add_element(0, 0, 0, std::make_unique<notation::Rest>(1.0)));
+}
+
+TEST_CASE("SCORE add_element(): stores element in the correct bar, part, and stave") {
+    auto score = notation::Score{};
+    score.add_part("Violin", 1);
+    score.add_part("Piano", 2);
+    score.add_new_bar(); // bar 0
+    score.add_new_bar(); // bar 1
+
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+    REQUIRE(score.add_element(1, 1, 1, std::make_unique<notation::Note>(C4, 1.0)));
+
+    CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(1).empty()); // wrong part
+    CHECK(score.get_parts()[1].get_staves()[0].get_bar_content(1).empty()); // wrong stave
+    CHECK(score.get_parts()[1].get_staves()[1].get_bar_content(0).empty()); // wrong bar
+    CHECK(!score.get_parts()[1].get_staves()[1].get_bar_content(1).empty()); // correct target
+}
+
+TEST_CASE("SCORE add_element(): capacity uses current time signature, not construction-time snapshot") {
+    auto score = notation::Score{};
+    score.add_part("Oboe", 1);
+    auto& bari = score.add_new_bar(); // bar 0: 4/4
+    bari.set_time_signature(3, 4);    // changed to 3/4 after construction
+
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+    CHECK(!score.add_element(0, 0, 0, std::make_unique<notation::Note>(C4, 4.0))); // 4.0 > 3.0
+    CHECK(score.add_element(0, 0, 0, std::make_unique<notation::Note>(C4, 3.0)));  // fits exactly
+}
+
+TEST_CASE("SCORE add_element(): throws std::out_of_range for invalid indices") {
+    auto score = notation::Score{};
+    score.add_part("Violin", 1);
+    score.add_new_bar();
+
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+
+    CHECK_THROWS_AS(score.add_element(1, 0, 0, std::make_unique<notation::Note>(C4, 1.0)), std::out_of_range);
+    CHECK_THROWS_AS(score.add_element(0, 1, 0, std::make_unique<notation::Note>(C4, 1.0)), std::out_of_range);
+    CHECK_THROWS_AS(score.add_element(0, 0, 1, std::make_unique<notation::Note>(C4, 1.0)), std::out_of_range);
+}
+
+TEST_CASE("SCORE add_element(): returns true when element fits in the bar") {
+    auto score = notation::Score{};
+    score.add_part("Violin", 1);
+    score.add_new_bar();
+
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+    CHECK(score.add_element(0, 0, 0, std::make_unique<notation::Note>(C4, 4.0)));
+}
+
+TEST_CASE("SCORE add_element(): sequential adds accumulate until bar is full") {
+    auto score = notation::Score{};
+    score.add_part("Violin", 1);
+    score.add_new_bar();
+
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+    auto const& barc = score.get_parts()[0].get_staves()[0].get_bar_content(0);
+    auto const ts = score.get_timeline()[0].get_time_signature();
+
+    REQUIRE(score.add_element(0, 0, 0, std::make_unique<notation::Note>(C4, 1.0)));
+    CHECK(barc.remaining_duration(ts.total_duration()) == 3.0);
+
+    REQUIRE(score.add_element(0, 0, 0, std::make_unique<notation::Note>(C4, 1.0)));
+    CHECK(barc.remaining_duration(ts.total_duration()) == 2.0);
+
+    REQUIRE(score.add_element(0, 0, 0, std::make_unique<notation::Note>(C4, 2.0)));
+    CHECK(barc.remaining_duration(ts.total_duration()) == 0.0);
+
+    CHECK(!score.add_element(0, 0, 0, std::make_unique<notation::Rest>(1.0)));
 }
