@@ -30,11 +30,8 @@ namespace notation {
             timeline_.push_back(timeline_.back());
         }
 
-        auto const ts = timeline_.back().get_time_signature();
-        auto const total_duration = ts.get_top() * (4.0 / ts.get_bot());
-
         for (auto& part : parts_) {
-            part.add_bar_to_staves(total_duration);
+            part.add_bar_to_staves();
         }
 
         return timeline_.back();
@@ -43,10 +40,8 @@ namespace notation {
     auto Score::add_part(std::string instrument, int no_staves) -> Part& {
         parts_.emplace_back(instrument, no_staves);
 
-        for (auto const& bar_info : timeline_) {
-            auto const ts = bar_info.get_time_signature();
-            auto const total_duration = ts.get_top() * (4.0 / ts.get_bot());
-            parts_.back().add_bar_to_staves(total_duration);
+        for (size_t i = 0; i < timeline_.size(); ++i) {
+            parts_.back().add_bar_to_staves();
         }
 
         return parts_.back();

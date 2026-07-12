@@ -7,18 +7,17 @@
 namespace notation {
     class BarContent {
      public:
-        BarContent(double total_duration);
+        BarContent();
 
         [[nodiscard]] auto get_elements() const -> std::vector<std::unique_ptr<MusicalElement>> const&;
-        [[nodiscard]] auto remaining_duration() const -> double;
+        [[nodiscard]] auto remaining_duration(double total_duration) const -> double;
         [[nodiscard]] auto empty() const -> bool;
 
-        auto try_add(std::unique_ptr<MusicalElement> element) -> bool;
+        auto try_add(std::unique_ptr<MusicalElement> element, double total_duration) -> bool;
         auto clear() -> void;
 
      private:
         std::vector<std::unique_ptr<MusicalElement>> elements_;
-        double total_duration_;
         double used_duration_;
     };
 } // namespace notation

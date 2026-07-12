@@ -12,9 +12,9 @@ namespace notation {
         return staves_;
     }
 
-    auto Part::add_bar_to_staves(double total_duration) -> void {
+    auto Part::add_bar_to_staves() -> void {
         for (auto& stave : staves_) {
-            stave.add_bar(total_duration);
+            stave.add_bar();
         }
     }
 } // namespace notation

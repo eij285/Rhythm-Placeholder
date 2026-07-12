@@ -14,6 +14,6 @@ namespace notation {
      private:
         std::vector<BarContent> bar_contents_;
 
-        auto add_bar(double total_duration) -> void;
+        auto add_bar() -> void;
     };
 } // namespace notation

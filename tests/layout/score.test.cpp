@@ -110,25 +110,29 @@ TEST_CASE("SCORE: add_new_bar() derives BarContent total_duration from the bar's
 
     SECTION("4/4 produces total_duration of 4.0") {
         score.add_new_bar();
-        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration() == 4.0);
+        auto const ts = score.get_timeline()[0].get_time_signature();
+        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 4.0);
     }
 
     SECTION("3/4 produces total_duration of 3.0") {
         auto& bar = score.add_new_bar();
         bar.set_time_signature(3, 4);
-        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration() == 3.0);
+        auto const ts = score.get_timeline()[0].get_time_signature();
+        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 3.0);
     }
 
     SECTION("6/8 produces total_duration of 3.0") {
         auto& bar = score.add_new_bar();
         bar.set_time_signature(6, 8);
-        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration() == 3.0);
+        auto const ts = score.get_timeline()[0].get_time_signature();
+        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 3.0);
     }
 
     SECTION("2/2 produces total_duration of 4.0") {
         auto& bar = score.add_new_bar();
         bar.set_time_signature(2, 2);
-        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration() == 4.0);
+        auto const ts = score.get_timeline()[0].get_time_signature();
+        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 4.0);
     }
 }
 
@@ -169,8 +173,12 @@ TEST_CASE("SCORE: add_part() backfills BarContent with durations matching each b
     auto const& stave = part.get_staves()[0];
 
     REQUIRE(stave.get_bar_contents().size() == 2);
-    CHECK(stave.get_bar_content(0).remaining_duration() == 4.0);
-    CHECK(stave.get_bar_content(1).remaining_duration() == 3.0);
+
+    auto const ts0 = score.get_timeline()[0].get_time_signature();
+    auto const ts1 = score.get_timeline()[1].get_time_signature();
+
+    CHECK(stave.get_bar_content(0).remaining_duration(ts0.total_duration()) == 4.0);
+    CHECK(stave.get_bar_content(1).remaining_duration(ts1.total_duration()) == 3.0);
 }
 
 TEST_CASE("SCORE: Every stave has the same number of bar content entries as the timeline after any sequence of add_new_bar() and add_part() calls") {

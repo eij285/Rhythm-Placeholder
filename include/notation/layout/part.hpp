@@ -17,6 +17,6 @@ namespace notation {
         std::string instrument_;
         std::vector<Stave> staves_;
 
-        auto add_bar_to_staves(double total_duration) -> void;
+        auto add_bar_to_staves() -> void;
     };
 } // namespace notation

@@ -12,6 +12,7 @@ namespace notation {
 
         [[nodiscard]] auto get_top() const -> int;
         [[nodiscard]] auto get_bot() const -> int;
+        [[nodiscard]] auto total_duration() const -> double;
 
         auto set(int top, int bot) -> void;
 

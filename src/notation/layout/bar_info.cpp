@@ -12,6 +12,10 @@ namespace notation {
         return bot_;
     }
 
+    auto TimeSignature::total_duration() const -> double {
+        return top_ * (4.0 / bot_);
+    }
+
     auto TimeSignature::set(int top, int bot) -> void {
         top_ = top;
         bot_ = bot;

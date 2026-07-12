@@ -11,7 +11,7 @@ namespace notation {
         return bar_contents_.at(index);
     }
 
-    auto Stave::add_bar(double total_duration) -> void {
-        bar_contents_.emplace_back(total_duration);
+    auto Stave::add_bar() -> void {
+        bar_contents_.emplace_back();
     }
 } // namespace notation
