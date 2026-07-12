@@ -53,6 +53,9 @@ add_executable(tests
     tests/notation/rest.test.cpp
     tests/layout/bar_content.test.cpp
     tests/layout/bar_info.test.cpp
+    tests/layout/stave.test.cpp
+    tests/layout/part.test.cpp
+    tests/layout/score.test.cpp
 )
 
 target_link_libraries(tests
