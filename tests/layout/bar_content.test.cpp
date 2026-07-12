@@ -9,12 +9,12 @@ TEST_CASE("BAR CONTENT: Constructor sets correct private field members") {
     auto const total_duration = 4.0;
     notation::BarContent bar_content{};
 
-    CHECK(bar_content.get_elements().empty());
+    CHECK(bar_content.get_entries().empty());
     CHECK(bar_content.remaining_duration(total_duration) == total_duration);
     CHECK(bar_content.empty() == true);
 }
 
-TEST_CASE("BAR CONTENT: get_elements() returns elements in correct order") {
+TEST_CASE("BAR CONTENT: get_entries() returns entries in insertion order with correct onsets") {
     auto const total_duration = 4.0;
     notation::BarContent bar_content{};
 
@@ -26,12 +26,12 @@ TEST_CASE("BAR CONTENT: get_elements() returns elements in correct order") {
     REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(E4, 1.0), total_duration));
     REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(D4, 1.0), total_duration));
 
-    auto const& elems = bar_content.get_elements();
-    REQUIRE(elems.size() == 3);
+    auto const& entries = bar_content.get_entries();
+    REQUIRE(entries.size() == 3);
 
-    auto* first  = dynamic_cast<notation::Note*>(elems[0].get());
-    auto* second = dynamic_cast<notation::Note*>(elems[1].get());
-    auto* third  = dynamic_cast<notation::Note*>(elems[2].get());
+    auto* first  = dynamic_cast<notation::Note*>(entries[0].element.get());
+    auto* second = dynamic_cast<notation::Note*>(entries[1].element.get());
+    auto* third  = dynamic_cast<notation::Note*>(entries[2].element.get());
 
     REQUIRE(first  != nullptr);
     REQUIRE(second != nullptr);
@@ -40,6 +40,10 @@ TEST_CASE("BAR CONTENT: get_elements() returns elements in correct order") {
     CHECK(first->get_pitch()  == F4);
     CHECK(second->get_pitch() == E4);
     CHECK(third->get_pitch()  == D4);
+
+    CHECK(entries[0].onset == 0.0);
+    CHECK(entries[1].onset == 2.0);
+    CHECK(entries[2].onset == 3.0);
 }
 
 TEST_CASE("BAR CONTENT: remaining_duration() updates correctly after adding elements") {
@@ -101,7 +105,7 @@ TEST_CASE("BAR CONTENT: clear() successfully empties the bar") {
 
     bar_content.clear();
 
-    CHECK(bar_content.get_elements().empty());
+    CHECK(bar_content.get_entries().empty());
     CHECK(bar_content.remaining_duration(total_duration) == total_duration);
     CHECK(bar_content.empty() == true);
 }

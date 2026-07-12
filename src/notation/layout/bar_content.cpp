@@ -4,26 +4,29 @@
 #include <cmath>
 
 namespace notation {
-    BarContent::BarContent() : used_duration_{0} {}
+    BarContent::BarContent() {}
 
-    auto BarContent::get_elements() const -> std::vector<std::unique_ptr<MusicalElement>> const& {
-        return elements_;
+    auto BarContent::get_entries() const -> std::vector<BarEntry> const& {
+        return entries_;
     }
 
-    auto BarContent::remaining_duration(double total_duration) const -> double {
-        return total_duration - used_duration_;
+    auto BarContent::remaining_duration(double total_duration, int voice) const -> double {
+        auto const cursor = voice_cursors_.contains(voice) ? voice_cursors_.at(voice) : 0.0;
+        return total_duration - cursor;
     }
 
     auto BarContent::empty() const -> bool {
-        return elements_.empty();
+        return entries_.empty();
     }
 
     auto BarContent::try_add(std::unique_ptr<MusicalElement> element, double total_duration) -> bool {
+        auto const voice = element->get_voice();
         auto const elem_duration = element->get_duration();
 
-        if (remaining_duration(total_duration) + dur_tolerance >= elem_duration) {
-            used_duration_ += elem_duration;
-            elements_.push_back(std::move(element));
+        if (remaining_duration(total_duration, voice) + dur_tolerance >= elem_duration) {
+            auto const onset = voice_cursors_[voice];
+            voice_cursors_[voice] += elem_duration;
+            entries_.push_back({onset, std::move(element)});
             return true;
         }
 
@@ -31,7 +34,7 @@ namespace notation {
     }
 
     auto BarContent::clear() -> void {
-        elements_.clear();
-        used_duration_ = 0;
+        entries_.clear();
+        voice_cursors_.clear();
     }
 } // namespace notation
