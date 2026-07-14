@@ -10,6 +10,7 @@ namespace notation {
 
         [[nodiscard]] auto get_bar_contents() const -> std::vector<BarContent> const&;
         [[nodiscard]] auto get_bar_content(std::size_t index) const -> BarContent const&;
+        [[nodiscard]] auto get_bar_content(std::size_t index) -> BarContent&;
 
      private:
         std::vector<BarContent> bar_contents_;

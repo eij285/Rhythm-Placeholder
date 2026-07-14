@@ -20,6 +20,7 @@ namespace notation {
         [[nodiscard]] auto empty() const -> bool;
 
         auto try_add(std::unique_ptr<MusicalElement> element, double total_duration) -> bool;
+        auto remove_at(std::size_t index) -> std::unique_ptr<MusicalElement>;
         auto clear() -> void;
 
      private:

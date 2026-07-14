@@ -1,9 +1,7 @@
 #pragma once
 #include "notation/layout/bar_info.hpp"
 #include "notation/layout/part.hpp"
-#include "notation/elements/musical_element.hpp"
 
-#include <memory>
 #include <vector>
 
 namespace notation {
@@ -15,12 +13,12 @@ namespace notation {
         [[nodiscard]] auto get_title() const -> std::string;
         [[nodiscard]] auto get_author() const -> std::string;
         [[nodiscard]] auto get_parts() const -> std::vector<Part> const&;
+        [[nodiscard]] auto get_part(size_t index) const -> Part const&;
+        [[nodiscard]] auto get_part(size_t index) -> Part&;
         [[nodiscard]] auto get_timeline() const -> std::vector<BarInfo> const&;
 
         auto add_new_bar() -> BarInfo&;
         auto add_part(std::string instrument, int no_staves) -> Part&;
-        auto add_element(size_t bar_index, size_t part_index, size_t stave_index,
-                         std::unique_ptr<MusicalElement> element) -> bool;
 
      private:
         std::string title_;

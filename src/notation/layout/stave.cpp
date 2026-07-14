@@ -11,6 +11,10 @@ namespace notation {
         return bar_contents_.at(index);
     }
 
+    auto Stave::get_bar_content(std::size_t index) -> BarContent& {
+        return bar_contents_.at(index);
+    }
+
     auto Stave::add_bar() -> void {
         bar_contents_.emplace_back();
     }

@@ -12,16 +12,17 @@ namespace notation {
         return staves_;
     }
 
+    auto Part::get_stave(size_t index) const -> Stave const& {
+        return staves_.at(index);
+    }
+
+    auto Part::get_stave(size_t index) -> Stave& {
+        return staves_.at(index);
+    }
+
     auto Part::add_bar_to_staves() -> void {
         for (auto& stave : staves_) {
             stave.add_bar();
         }
-    }
-
-    auto Part::add_element_to_bar(size_t stave_index, size_t bar_index,
-                                  std::unique_ptr<MusicalElement> element,
-                                  double total_duration) -> bool {
-        return staves_.at(stave_index).bar_contents_.at(bar_index)
-                   .try_add(std::move(element), total_duration);
     }
 } // namespace notation

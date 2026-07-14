@@ -109,3 +109,91 @@ TEST_CASE("BAR CONTENT: clear() successfully empties the bar") {
     CHECK(bar_content.remaining_duration(total_duration) == total_duration);
     CHECK(bar_content.empty() == true);
 }
+
+TEST_CASE("BAR CONTENT: remove_at() returns the original element with correct type and duration") {
+    auto const total_duration = 4.0;
+    notation::BarContent bar_content{};
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 2.0), total_duration));
+
+    auto original = bar_content.remove_at(0);
+
+    REQUIRE(original != nullptr);
+    auto* note = dynamic_cast<notation::Note*>(original.get());
+    REQUIRE(note != nullptr);
+    CHECK(note->get_pitch() == C4);
+    CHECK(note->get_duration() == 2.0);
+}
+
+TEST_CASE("BAR CONTENT: remove_at() on last element in voice erases entry and shrinks cursor") {
+    auto const total_duration = 4.0;
+    notation::BarContent bar_content{};
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 2.0), total_duration));
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 1.0), total_duration));
+
+    bar_content.remove_at(1); // last in voice 0
+
+    CHECK(bar_content.get_entries().size() == 1);
+    CHECK(bar_content.remaining_duration(total_duration) == 2.0);
+}
+
+TEST_CASE("BAR CONTENT: remove_at() on non-last element replaces with Rest, cursor and onset unchanged") {
+    auto const total_duration = 4.0;
+    notation::BarContent bar_content{};
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 1.0), total_duration));
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 1.0), total_duration));
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 2.0), total_duration));
+
+    bar_content.remove_at(0); // not last in voice 0
+
+    REQUIRE(bar_content.get_entries().size() == 3);
+    CHECK(bar_content.remaining_duration(total_duration) == 0.0);
+
+    auto* rest = dynamic_cast<notation::Rest*>(bar_content.get_entries()[0].element.get());
+    REQUIRE(rest != nullptr);
+    CHECK(rest->get_duration() == 1.0);
+    CHECK(bar_content.get_entries()[0].onset == 0.0);
+}
+
+TEST_CASE("BAR CONTENT: remove_at() on only element leaves bar empty with full remaining duration") {
+    auto const total_duration = 4.0;
+    notation::BarContent bar_content{};
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 4.0), total_duration));
+    bar_content.remove_at(0);
+
+    CHECK(bar_content.empty());
+    CHECK(bar_content.remaining_duration(total_duration) == total_duration);
+}
+
+TEST_CASE("BAR CONTENT: remove_at() in multi-voice only affects the target voice cursor") {
+    auto const total_duration = 4.0;
+    notation::BarContent bar_content{};
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 2.0, 0), total_duration));
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 4.0, 1), total_duration));
+
+    bar_content.remove_at(1); // last in voice 1
+
+    CHECK(bar_content.get_entries().size() == 1);
+    CHECK(bar_content.remaining_duration(total_duration, 0) == 2.0); // voice 0 unchanged
+    CHECK(bar_content.remaining_duration(total_duration, 1) == 4.0); // voice 1 reset
+}
+
+TEST_CASE("BAR CONTENT: remove_at() throws std::out_of_range for invalid index") {
+    auto const total_duration = 4.0;
+    notation::BarContent bar_content{};
+
+    CHECK_THROWS_AS(bar_content.remove_at(0), std::out_of_range); // empty bar
+
+    auto C4 = notation::Pitch{notation::PitchName::C, 4};
+    REQUIRE(bar_content.try_add(std::make_unique<notation::Note>(C4, 1.0), total_duration));
+    CHECK_THROWS_AS(bar_content.remove_at(1), std::out_of_range); // one past end
+}

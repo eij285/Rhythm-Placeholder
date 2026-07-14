@@ -1,6 +1,8 @@
 #include "notation/layout/bar_content.hpp"
+#include "notation/elements/rest.hpp"
 #include "notation/notation_globals.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace notation {
@@ -31,6 +33,33 @@ namespace notation {
         }
 
         return false;
+    }
+
+    auto BarContent::remove_at(std::size_t index) -> std::unique_ptr<MusicalElement> {
+        if (index >= entries_.size()) {
+            throw std::out_of_range("BarContent::remove_at: index out of range");
+        }
+
+        auto const voice    = entries_[index].element->get_voice();
+        auto const onset    = entries_[index].onset;
+        auto const duration = entries_[index].element->get_duration();
+
+        auto const has_subsequent = std::any_of(
+            entries_.begin() + static_cast<std::ptrdiff_t>(index) + 1,
+            entries_.end(),
+            [voice](BarEntry const& e) { return e.element->get_voice() == voice; }
+        );
+
+        auto original = std::move(entries_[index].element);
+
+        if (has_subsequent) {
+            entries_[index].element = std::make_unique<Rest>(duration, voice);
+        } else {
+            voice_cursors_[voice] = onset;
+            entries_.erase(entries_.begin() + static_cast<std::ptrdiff_t>(index));
+        }
+
+        return original;
     }
 
     auto BarContent::clear() -> void {
