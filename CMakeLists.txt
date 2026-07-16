@@ -45,6 +45,21 @@ target_include_directories(notation
 )
 
 
+# CLI executable
+add_executable(notate_cli
+    src/main.cpp
+    src/cli/renderer.cpp
+    src/cli/notation_cmd.cpp
+)
+
+target_link_libraries(notate_cli
+    PRIVATE
+        notation
+)
+
+target_include_directories(notate_cli PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+
 # Tests
 add_executable(tests
     tests/notation/pitch.test.cpp
