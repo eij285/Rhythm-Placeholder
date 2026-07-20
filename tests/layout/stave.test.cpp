@@ -42,9 +42,9 @@ TEST_CASE("STAVE: get_bar_content(i) returns the correct BarContent at the given
 
     auto const& stave = part.get_staves()[0];
 
-    auto const ts0 = score.get_timeline()[0].get_time_signature();
-    auto const ts1 = score.get_timeline()[1].get_time_signature();
-    auto const ts2 = score.get_timeline()[2].get_time_signature();
+    auto const ts0 = score.get_timeline()[0]->get_time_signature();
+    auto const ts1 = score.get_timeline()[1]->get_time_signature();
+    auto const ts2 = score.get_timeline()[2]->get_time_signature();
 
     CHECK(stave.get_bar_content(0).remaining_duration(ts0.total_duration()) == 4.0);
     CHECK(stave.get_bar_content(1).remaining_duration(ts1.total_duration()) == 3.0);

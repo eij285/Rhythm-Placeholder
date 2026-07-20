@@ -38,9 +38,9 @@ TEST_CASE("SCORE: Constructors work as expected") {
         CHECK(score.get_timeline().empty());
 
         REQUIRE(!score.get_parts().empty());
-        CHECK(score.get_parts()[0].get_instrument() == "Violin");
-        CHECK(score.get_parts()[1].get_instrument() == "Cello");
-        CHECK(score.get_parts()[2].get_instrument() == "Piano");
+        CHECK(score.get_parts()[0]->get_instrument() == "Violin");
+        CHECK(score.get_parts()[1]->get_instrument() == "Cello");
+        CHECK(score.get_parts()[2]->get_instrument() == "Piano");
     }
 }
 
@@ -69,11 +69,11 @@ TEST_CASE("SCORE: Mutable BarInfo& returned by add_new_bar() is a live reference
     bari.set_key_signature(notation::KeySignature::G);
     bari.set_tempo(80);
 
-    auto const timeline = score.get_timeline();
-    CHECK(bari.get_time_signature().get_top() == timeline[0].get_time_signature().get_top());
-    CHECK(bari.get_time_signature().get_bot() == timeline[0].get_time_signature().get_bot());
-    CHECK(bari.get_key_signature() == timeline[0].get_key_signature());
-    CHECK(bari.get_tempo() == timeline[0].get_tempo());
+    auto const& timeline = score.get_timeline();
+    CHECK(bari.get_time_signature().get_top() == timeline[0]->get_time_signature().get_top());
+    CHECK(bari.get_time_signature().get_bot() == timeline[0]->get_time_signature().get_bot());
+    CHECK(bari.get_key_signature() == timeline[0]->get_key_signature());
+    CHECK(bari.get_tempo() == timeline[0]->get_tempo());
 }
 
 TEST_CASE("SCORE: Subsequent bars from add_new_bar() copies settings from previous one by default") {
@@ -101,7 +101,7 @@ TEST_CASE("SCORE: add_new_bar() pushes a BarContent to every stave of every exis
     score.add_new_bar();
 
     for (auto const& part : score.get_parts()) {
-        for (auto const& stave : part.get_staves()) {
+        for (auto const& stave : part->get_staves()) {
             CHECK(stave.get_bar_contents().size() == 1);
         }
     }
@@ -113,29 +113,29 @@ TEST_CASE("SCORE: add_new_bar() derives BarContent total_duration from the bar's
 
     SECTION("4/4 produces total_duration of 4.0") {
         score.add_new_bar();
-        auto const ts = score.get_timeline()[0].get_time_signature();
-        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 4.0);
+        auto const ts = score.get_timeline()[0]->get_time_signature();
+        CHECK(score.get_parts()[0]->get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 4.0);
     }
 
     SECTION("3/4 produces total_duration of 3.0") {
         auto& bar = score.add_new_bar();
         bar.set_time_signature(3, 4);
-        auto const ts = score.get_timeline()[0].get_time_signature();
-        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 3.0);
+        auto const ts = score.get_timeline()[0]->get_time_signature();
+        CHECK(score.get_parts()[0]->get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 3.0);
     }
 
     SECTION("6/8 produces total_duration of 3.0") {
         auto& bar = score.add_new_bar();
         bar.set_time_signature(6, 8);
-        auto const ts = score.get_timeline()[0].get_time_signature();
-        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 3.0);
+        auto const ts = score.get_timeline()[0]->get_time_signature();
+        CHECK(score.get_parts()[0]->get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 3.0);
     }
 
     SECTION("2/2 produces total_duration of 4.0") {
         auto& bar = score.add_new_bar();
         bar.set_time_signature(2, 2);
-        auto const ts = score.get_timeline()[0].get_time_signature();
-        CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 4.0);
+        auto const ts = score.get_timeline()[0]->get_time_signature();
+        CHECK(score.get_parts()[0]->get_staves()[0].get_bar_content(0).remaining_duration(ts.total_duration()) == 4.0);
     }
 }
 
@@ -177,8 +177,8 @@ TEST_CASE("SCORE: add_part() backfills BarContent with durations matching each b
 
     REQUIRE(stave.get_bar_contents().size() == 2);
 
-    auto const ts0 = score.get_timeline()[0].get_time_signature();
-    auto const ts1 = score.get_timeline()[1].get_time_signature();
+    auto const ts0 = score.get_timeline()[0]->get_time_signature();
+    auto const ts1 = score.get_timeline()[1]->get_time_signature();
 
     CHECK(stave.get_bar_content(0).remaining_duration(ts0.total_duration()) == 4.0);
     CHECK(stave.get_bar_content(1).remaining_duration(ts1.total_duration()) == 3.0);
@@ -197,7 +197,7 @@ TEST_CASE("SCORE: Every stave has the same number of bar content entries as the 
     auto const expected = score.get_timeline().size();
 
     for (auto const& part : score.get_parts()) {
-        for (auto const& stave : part.get_staves()) {
+        for (auto const& stave : part->get_staves()) {
             CHECK(stave.get_bar_contents().size() == expected);
         }
     }
@@ -209,8 +209,8 @@ TEST_CASE("SCORE: try_add() returns false and leaves bar unchanged when element 
     score.add_new_bar();
 
     auto C4 = notation::Pitch{notation::PitchName::C, 4};
-    auto const ts = score.get_timeline()[0].get_time_signature();
-    auto const& barc = score.get_parts()[0].get_staves()[0].get_bar_content(0);
+    auto const ts = score.get_timeline()[0]->get_time_signature();
+    auto const& barc = score.get_parts()[0]->get_staves()[0].get_bar_content(0);
 
     CHECK(!score.get_part(0).get_stave(0).get_bar_content(0).try_add(std::make_unique<notation::Note>(C4, 5.0), ts.total_duration()));
     CHECK(barc.empty());
@@ -223,7 +223,7 @@ TEST_CASE("SCORE: try_add() returns false when bar is already full") {
     score.add_new_bar();
 
     auto C4 = notation::Pitch{notation::PitchName::C, 4};
-    auto const ts = score.get_timeline()[0].get_time_signature();
+    auto const ts = score.get_timeline()[0]->get_time_signature();
     auto& barc = score.get_part(0).get_stave(0).get_bar_content(0);
 
     REQUIRE(barc.try_add(std::make_unique<notation::Note>(C4, 4.0), ts.total_duration()));
@@ -238,13 +238,13 @@ TEST_CASE("SCORE: get_part/get_stave/get_bar_content() targets the correct bar, 
     score.add_new_bar(); // bar 1
 
     auto C4 = notation::Pitch{notation::PitchName::C, 4};
-    auto const ts = score.get_timeline()[1].get_time_signature();
+    auto const ts = score.get_timeline()[1]->get_time_signature();
     REQUIRE(score.get_part(1).get_stave(1).get_bar_content(1).try_add(std::make_unique<notation::Note>(C4, 1.0), ts.total_duration()));
 
-    CHECK(score.get_parts()[0].get_staves()[0].get_bar_content(1).empty()); // wrong part
-    CHECK(score.get_parts()[1].get_staves()[0].get_bar_content(1).empty()); // wrong stave
-    CHECK(score.get_parts()[1].get_staves()[1].get_bar_content(0).empty()); // wrong bar
-    CHECK(!score.get_parts()[1].get_staves()[1].get_bar_content(1).empty()); // correct target
+    CHECK(score.get_parts()[0]->get_staves()[0].get_bar_content(1).empty()); // wrong part
+    CHECK(score.get_parts()[1]->get_staves()[0].get_bar_content(1).empty()); // wrong stave
+    CHECK(score.get_parts()[1]->get_staves()[1].get_bar_content(0).empty()); // wrong bar
+    CHECK(!score.get_parts()[1]->get_staves()[1].get_bar_content(1).empty()); // correct target
 }
 
 TEST_CASE("SCORE: try_add() capacity reflects current time signature at call time") {
@@ -254,7 +254,7 @@ TEST_CASE("SCORE: try_add() capacity reflects current time signature at call tim
     bari.set_time_signature(3, 4);    // changed to 3/4 after construction
 
     auto C4 = notation::Pitch{notation::PitchName::C, 4};
-    auto const ts = score.get_timeline()[0].get_time_signature();
+    auto const ts = score.get_timeline()[0]->get_time_signature();
     auto& barc = score.get_part(0).get_stave(0).get_bar_content(0);
 
     CHECK(!barc.try_add(std::make_unique<notation::Note>(C4, 4.0), ts.total_duration())); // 4.0 > 3.0
@@ -277,7 +277,7 @@ TEST_CASE("SCORE: try_add() returns true when element fits in the bar") {
     score.add_new_bar();
 
     auto C4 = notation::Pitch{notation::PitchName::C, 4};
-    auto const ts = score.get_timeline()[0].get_time_signature();
+    auto const ts = score.get_timeline()[0]->get_time_signature();
     CHECK(score.get_part(0).get_stave(0).get_bar_content(0).try_add(std::make_unique<notation::Note>(C4, 4.0), ts.total_duration()));
 }
 
@@ -287,7 +287,7 @@ TEST_CASE("SCORE: sequential try_add() calls accumulate until bar is full") {
     score.add_new_bar();
 
     auto C4 = notation::Pitch{notation::PitchName::C, 4};
-    auto const ts = score.get_timeline()[0].get_time_signature();
+    auto const ts = score.get_timeline()[0]->get_time_signature();
     auto& barc = score.get_part(0).get_stave(0).get_bar_content(0);
 
     REQUIRE(barc.try_add(std::make_unique<notation::Note>(C4, 1.0), ts.total_duration()));
