@@ -180,16 +180,19 @@ auto render_header(notation::Score const& score) -> void {
 }
 
 auto render_score_bar(notation::Score const& score, std::size_t bar_index,
-                       std::optional<std::string> const& part_name) -> void {
+                       std::optional<std::size_t> const& part_index) -> void {
     std::vector<RenderRow> rows;
 
-    for (auto const& part : score.get_parts()) {
-        if (part_name && part->get_instrument() != *part_name) continue;
+    auto const& parts = score.get_parts();
+    for (std::size_t p = 0; p < parts.size(); ++p) {
+        if (part_index && p != *part_index) continue;
+        auto const& part = parts[p];
 
         auto const& staves = part->get_staves();
         for (std::size_t s = 0; s < staves.size(); ++s) {
             RenderRow row;
-            row.label = part->get_instrument();
+            // #<index> disambiguates parts that share a display name (see Part::get_instrument()).
+            row.label = part->get_instrument() + "#" + std::to_string(p + 1);
             if (staves.size() > 1) {
                 row.label += " (" + std::to_string(s + 1) + ")";
             }

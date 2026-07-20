@@ -45,34 +45,54 @@ enum class Mode { Read, Write };
 
 auto print_help(Mode mode) -> void {
     std::cout << "/h              Show this help message\n"
-                  "/m \"mode\"       Switch mode: /m \"Read\" or /m \"Write\"\n";
+                  "/m \"mode\"       Switch mode: /m \"Read\" or /m \"Write\"\n"
+                  "                Parts below can be selected by name or by #<index>\n"
+                  "                (rendered rows show \"name#index\"), since names need not\n"
+                  "                be unique, e.g. \"Piano\" or #2\n";
 
     if (mode == Mode::Write) {
         std::cout << "/p \"name\" <n>   Add a part with n staves, e.g. /p \"Piano\" 2\n"
-                      "/a \"name\" <s> <token>\n"
+                      "/a <part> <s> <token>\n"
                       "                Add a note/chord/rest to stave s of a part at the\n"
-                      "                current cursor, e.g. /a \"Piano\" 1 C4q\n";
+                      "                current cursor, e.g. /a \"Piano\" 1 C4q or /a #2 1 C4q\n";
     } else {
-        std::cout << "/p \"name\"       Render every bar of one part, e.g. /p \"Piano\"\n"
+        std::cout << "/p <part>       Render every bar of one part, e.g. /p \"Piano\" or /p #2\n"
                       "/s              Render every bar of the whole score\n"
-                      "/b \"name\" <n>   Render bar n of one part, e.g. /b \"Piano\" 1\n";
+                      "/b <part> <n>   Render bar n of one part, e.g. /b \"Piano\" 1 or /b #2 1\n";
     }
 
     std::cout << "/q              Quit\n";
 }
 
-auto find_part_index(notation::Score const& score, std::string const& name) -> std::optional<std::size_t> {
+// Resolves a part selector to an index: "#<n>" is a 1-based index into score.get_parts();
+// anything else is matched as an instrument name (first match, since names need not be
+// unique - see Part::get_instrument()). Returns nullopt if nothing matches.
+auto resolve_part_index(notation::Score const& score, std::string const& selector) -> std::optional<std::size_t> {
     auto const& parts = score.get_parts();
+
+    if (!selector.empty() && selector[0] == '#') {
+        try {
+            auto const n = std::stoi(selector.substr(1));
+            if (n >= 1 && static_cast<std::size_t>(n) <= parts.size()) {
+                return static_cast<std::size_t>(n) - 1;
+            }
+        } catch (std::exception const&) {
+            // fall through to nullopt
+        }
+        return std::nullopt;
+    }
+
     for (std::size_t i = 0; i < parts.size(); ++i) {
-        if (parts[i]->get_instrument() == name) return i;
+        if (parts[i]->get_instrument() == selector) return i;
     }
     return std::nullopt;
 }
 
 auto handle_render_part(notation::Score const& score, std::vector<std::string> const& args) -> void {
-    auto const& name = args[1];
-    if (!find_part_index(score, name)) {
-        std::cout << "No part named \"" << name << "\"\n";
+    auto const& selector = args[1];
+    auto const part_index = resolve_part_index(score, selector);
+    if (!part_index) {
+        std::cout << "No part matching \"" << selector << "\"\n";
         return;
     }
 
@@ -84,7 +104,7 @@ auto handle_render_part(notation::Score const& score, std::vector<std::string> c
 
     for (std::size_t bar = 0; bar < timeline.size(); ++bar) {
         std::cout << "Bar " << bar + 1 << ":\n";
-        render_score_bar(score, bar, name);
+        render_score_bar(score, bar, part_index);
     }
 }
 
@@ -103,13 +123,14 @@ auto handle_render_score(notation::Score const& score) -> void {
 
 auto handle_render_bar(notation::Score const& score, std::vector<std::string> const& args) -> void {
     if (args.size() != 3) {
-        std::cout << "Usage: /b \"<part name>\" <bar>\n";
+        std::cout << "Usage: /b <part> <bar>, e.g. /b \"Piano\" 1 or /b #2 1\n";
         return;
     }
 
-    auto const& name = args[1];
-    if (!find_part_index(score, name)) {
-        std::cout << "No part named \"" << name << "\"\n";
+    auto const& selector = args[1];
+    auto const part_index = resolve_part_index(score, selector);
+    if (!part_index) {
+        std::cout << "No part matching \"" << selector << "\"\n";
         return;
     }
 
@@ -127,7 +148,7 @@ auto handle_render_bar(notation::Score const& score, std::vector<std::string> co
         return;
     }
 
-    render_score_bar(score, static_cast<std::size_t>(bar_number) - 1, name);
+    render_score_bar(score, static_cast<std::size_t>(bar_number) - 1, part_index);
 }
 
 // `locked_to_read` is true when the CLI was started with -r: the score is read-only for the
@@ -190,14 +211,14 @@ auto bar_has_room(notation::Score const& score, notation::Stave& stave, std::siz
 
 auto handle_add_note(notation::Score& score, std::vector<std::string> const& args) -> void {
     if (args.size() != 4) {
-        std::cout << "Usage: /a \"<part name>\" <stave> <token>, e.g. /a \"Piano\" 1 C4q\n";
+        std::cout << "Usage: /a <part> <stave> <token>, e.g. /a \"Piano\" 1 C4q or /a #2 1 C4q\n";
         return;
     }
 
-    auto const& name = args[1];
-    auto const part_index = find_part_index(score, name);
+    auto const& selector = args[1];
+    auto const part_index = resolve_part_index(score, selector);
     if (!part_index) {
-        std::cout << "No part named \"" << name << "\"\n";
+        std::cout << "No part matching \"" << selector << "\"\n";
         return;
     }
     auto& part = score.get_part(*part_index);
@@ -210,7 +231,7 @@ auto handle_add_note(notation::Score& score, std::vector<std::string> const& arg
         return;
     }
     if (stave_number < 1 || static_cast<std::size_t>(stave_number) > part.get_staves().size()) {
-        std::cout << "Part \"" << name << "\" has no stave " << stave_number << "\n";
+        std::cout << "Part \"" << part.get_instrument() << "\" has no stave " << stave_number << "\n";
         return;
     }
     auto& stave = part.get_stave(static_cast<std::size_t>(stave_number) - 1);
@@ -239,12 +260,12 @@ auto handle_add_note(notation::Score& score, std::vector<std::string> const& arg
 
     auto const total_duration = score.get_timeline()[bar_index]->get_time_signature().total_duration();
     stave.get_bar_content(bar_index).try_add(std::move(element), total_duration);
-    std::cout << "Added " << args[3] << " to \"" << name << "\" stave " << stave_number << ", bar " << bar_index + 1
-               << "\n";
+    std::cout << "Added " << args[3] << " to " << part.get_instrument() << "#" << (*part_index + 1) << " stave "
+               << stave_number << ", bar " << bar_index + 1 << "\n";
 
     if (std::abs(stave.get_bar_content(bar_index).remaining_duration(total_duration, voice)) < notation::dur_tolerance) {
         std::cout << "Bar " << bar_index + 1 << " complete:\n";
-        render_score_bar(score, bar_index, name);
+        render_score_bar(score, bar_index, part_index);
     }
 }
 

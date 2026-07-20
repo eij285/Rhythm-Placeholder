@@ -10,7 +10,7 @@ namespace cli {
 
 auto render_header(notation::Score const& score) -> void;
 auto render_score_bar(notation::Score const& score, std::size_t bar_index,
-                       std::optional<std::string> const& part_name = std::nullopt) -> void;
+                       std::optional<std::size_t> const& part_index = std::nullopt) -> void;
 
 // Parses a token in the /a "s/m/c/q/sq" note-letter format render_score_bar() prints,
 // e.g. "C4q", "(C4-E4-G4)c", "Rq". Returns nullptr if `token` isn't well-formed.
