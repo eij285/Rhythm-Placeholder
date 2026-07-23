@@ -49,9 +49,10 @@
 cmake_install.cmake
 Makefile
 
-# IDE/editor files
-.vscode/
-.idea/
+# IDE/editor files (anchored to repo root only - apps/*/.vscode/ may be
+# intentionally committed by their own scaffolding, e.g. extensions.json)
+/.vscode/
+/.idea/
 *.swp
 *~
 
