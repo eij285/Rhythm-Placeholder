@@ -58,3 +58,4 @@ Makefile
 
 # Other temp files
 .DS_Store
+.cache
