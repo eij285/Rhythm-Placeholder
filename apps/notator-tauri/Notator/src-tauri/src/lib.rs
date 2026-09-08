@@ -6,6 +6,17 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
+// struct ScoreMeta {
+//     title: String,
+//     author: String,
+
+// }
+
+// #[tauri::command]
+// fn create_score(title: str, author: str) -> ScoreMeta {
+    
+// }
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()

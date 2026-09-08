@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, type SubmitEvent } from 'react'
+import { invoke } from '@tauri-apps/api/core'
 
 type ScoreDiagProps = {
   open: boolean
@@ -18,9 +19,16 @@ function ScoreDiag({ open, onClose }: ScoreDiagProps) {
     }
   }, [open])
 
+  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const result = await invoke('create_score', { title, author })
+    console.log(result)
+    onClose()
+  }
+
   return (
     <dialog ref={diagRef} onClose={onClose}>
-      <form>
+      <form onSubmit={handleSubmit}>
         <label>
           Title
           <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
